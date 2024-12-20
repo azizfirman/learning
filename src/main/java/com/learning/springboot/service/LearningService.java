@@ -3,7 +3,6 @@ package com.learning.springboot.service;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,9 +79,9 @@ public class LearningService {
             Optional<Learning> learning = learningRepository.findById(id);
 
             if(learning.isPresent()){
-                learning.get().setName(learningPojo.getName());
-                learning.get().setEmail(learningPojo.getEmail());
-                learning.get().setEmployeeID(learningPojo.getEmployeeId());
+                if(learningPojo.getName() != null) learning.get().setName(learningPojo.getName());
+                if(learningPojo.getEmail() != null) learning.get().setEmail(learningPojo.getEmail());
+                if(learningPojo.getEmployeeId() != null) learning.get().setEmployeeID(learningPojo.getEmployeeId());
                 learningRepository.save(learning.get());
 
                 response.setData(learning.get());
@@ -133,17 +132,15 @@ public class LearningService {
 
     public Map<String, String> checkMandatory(LearningPojo learningPojo) {
         Map<String, String> errorMessage = new HashMap<>();
-        Field[] fields = LearningPojo.class.getDeclaredFields();
 
-        for(Field field : fields){
-            field.setAccessible(true);
-            try {
-                if(field.get(learningPojo).toString().isEmpty()){
-                    errorMessage.put(field.getName(), field.getName() + " is mandatory!");
-                }
-            } catch (IllegalArgumentException | IllegalAccessException e) {
-                e.printStackTrace();
-            }
+        if(learningPojo.getName() == null || learningPojo.getName().isEmpty()){
+            errorMessage.put("name", "Name is mandatory!");
+        }
+        if(learningPojo.getEmail() == null || learningPojo.getEmail().isEmpty()){
+            errorMessage.put("email", "Email is mandatory!");
+        }
+        if(learningPojo.getEmployeeId() == null || learningPojo.getEmployeeId().isEmpty()){
+            errorMessage.put("employeeId", "Employee ID is mandatory!");
         }
         return errorMessage;
     }
